@@ -24,6 +24,25 @@ ubuntu() {
   get_all_debian ubuntu-old-dietlibc http://old-releases.ubuntu.com/ubuntu/pool/universe/d/dietlibc/ dietlibc
 }
 
+categories[cntr_category]="ubuntu_static"
+requirements["ubuntu"]="requirements_debian"
+cntr_category=$((cntr_category + 1))
+ubuntu_static() {
+  get_all_debian_static ubuntu-eglibc http://archive.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6
+  get_all_debian_static ubuntu-glibc http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6
+  get_all_debian_static ubuntu-musl http://archive.ubuntu.com/ubuntu/pool/universe/m/musl/ musl
+  get_all_debian_static ubuntu-dietlibc http://archive.ubuntu.com/ubuntu/pool/universe/d/dietlibc/ dietlibc
+  get_all_debian_static ubuntu-security-eglibc http://security.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6
+  get_all_debian_static ubuntu-security-glibc http://security.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6
+  get_all_debian_static ubuntu-security-musl http://security.ubuntu.com/ubuntu/pool/universe/m/musl/ musl
+  get_all_debian_static ubuntu-security-dietlibc http://security.ubuntu.com/ubuntu/pool/universe/d/dietlibc/ dietlibc
+  get_all_debian_static ubuntu-old-eglibc http://old-releases.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6
+  get_all_debian_static ubuntu-old-glibc http://old-releases.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6
+  get_all_debian_static ubuntu-old-musl http://old-releases.ubuntu.com/ubuntu/pool/universe/m/musl/ musl
+  get_all_debian_static ubuntu-old-dietlibc http://old-releases.ubuntu.com/ubuntu/pool/universe/d/dietlibc/ dietlibc
+}
+
+
 categories[cntr_category]="debian"
 requirements["debian"]="requirements_debian"
 cntr_category=$((cntr_category + 1))

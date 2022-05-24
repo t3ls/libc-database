@@ -60,6 +60,13 @@ process_libc() {
   echo "$url" > db/${id}.url
 }
 
+process_libc_static() {
+  local libc=$1
+  local id=$2
+  echo "  -> Writing libc ${libc} to db/${id}.a"
+  cp $libc db/${id}.a
+}
+
 index_libc() {
   local tmp="$1"
   local id="$2"
@@ -74,6 +81,26 @@ index_libc() {
     # Some file matched can be ASCII files instead :(
     if ! (file "$libc" | grep -q 'ELF\|symbolic link to') ; then
       echo "  -> libc ${libc} is not an ELF file"
+      continue  # Keep cnt and suffix as it
+    fi
+    process_libc "$libc" "$id$suffix" "$info" "$url"
+    cnt=$((cnt+1))
+    suffix=_$cnt
+  done
+}
+
+index_libc_static() {
+  local tmp="$1"
+  local id="$2"
+  local info="$3"
+  local url="$4"
+  suffix=
+  cnt=1
+  libs=$(find "$tmp" -name 'libc.a';find "$tmp" -name 'libc[-_.][a-z]*.a')
+  [[ -z "$libs" ]] && die "Cannot locate the libc file"
+  for libc in $libs; do
+    if ! (file "$libc" | grep -q 'ar archive') ; then
+      echo "  -> libc ${libc} is not an ar archive"
       continue  # Keep cnt and suffix as it
     fi
     process_libc "$libc" "$id$suffix" "$info" "$url"
@@ -128,7 +155,11 @@ get_debian() {
     tar xf data.tar.* || die "tar failed"
   fi
   popd 1>/dev/null
-  index_libc "$tmp" "$id" "$info" "$url"
+  if [[ "$#" -eq 4 ]] ; then
+    index_libc_static "$tmp" "$id" "$info" "$url"
+  else
+    index_libc "$tmp" "$id" "$info" "$url"
+  fi
   rm -rf $tmp
 }
 
@@ -138,6 +169,16 @@ get_all_debian() {
   local pkgname=$3
   for f in `wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>"`; do
     get_debian "$url/$f" "$info" "$pkgname"
+  done
+  return 0
+}
+
+get_all_debian_static() {
+  local info=$1
+  local url=$2
+  local pkgname=$3
+  for f in `wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'-dev(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>"`; do
+    get_debian "$url/$f" "$info" "$pkgname" static
   done
   return 0
 }
@@ -284,7 +325,11 @@ get_pkg() {
     tar xJf pkg.tar.xz --warning=none
   fi
   popd 1>/dev/null
-  index_libc "$tmp" "$id" "$info" "$url"
+  if [[ "$#" -eq 4 ]] ; then
+    index_libc_static "$tmp" "$id" "$info" "$url"
+  else
+    index_libc "$tmp" "$id" "$info" "$url"
+  fi
   rm -rf "$tmp"
 }
 
