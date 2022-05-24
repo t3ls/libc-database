@@ -96,7 +96,7 @@ index_libc_static() {
   local url="$4"
   suffix=
   cnt=1
-  libs=$(find "$tmp" -name 'libc.a';find "$tmp" -name 'libc[-_.][a-z]*.a')
+  libs=$(find "$tmp" -name 'libc.a')
   [[ -z "$libs" ]] && die "Cannot locate the libc file"
   for libc in $libs; do
     if ! (file "$libc" | grep -q 'ar archive') ; then
