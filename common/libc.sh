@@ -103,7 +103,7 @@ index_libc_static() {
       echo "  -> libc ${libc} is not an ar archive"
       continue  # Keep cnt and suffix as it
     fi
-    process_libc "$libc" "$id$suffix" "$info" "$url"
+    process_libc_static "$libc" "$id$suffix" "$info" "$url"
     cnt=$((cnt+1))
     suffix=_$cnt
   done
