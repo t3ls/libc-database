@@ -216,7 +216,11 @@ get_rpm() {
   (rpm2cpio pkg.rpm || die "rpm2cpio failed") | \
     (cpio -id --quiet || die "cpio failed")
   popd 1>/dev/null
-  index_libc "$tmp" "$id" "$info" "$url"
+  if [[ "$#" -eq 4 ]] ; then
+    index_libc_static "$tmp" "$id" "$info" "$url"
+  else
+    index_libc "$tmp" "$id" "$info" "$url"
+  fi
   rm -rf "$tmp"
 }
 
@@ -281,6 +285,30 @@ get_from_filelistgz() {
   for url in $urls
   do
     get_rpm "$website/$url" "$info" "$pkg"
+    sleep .1
+  done
+}
+
+get_from_filelistgz_static() {
+  local info=$1
+  local website=$2
+  local pkg=$3
+  local arch=$4
+  echo "Getting package $pkg locations"
+  local url=""
+  for i in $(seq 1 3); do
+    urls=$(wget "$website/filelist.gz" -O - 2>/dev/null \
+      | gzip -cd \
+      | grep -h "$pkg-[0-9]" \
+      | grep -h "$arch\.rpm")
+    [[ -z "$urls" ]] || break
+    echo "Retrying..."
+    sleep 1
+  done
+  [[ -n "$urls" ]] || die "Failed to get package version"
+  for url in $urls
+  do
+    get_rpm "$website/$url" "$info" "$pkg" static
     sleep .1
   done
 }

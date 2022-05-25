@@ -25,7 +25,7 @@ ubuntu() {
 }
 
 categories[cntr_category]="ubuntu_static"
-requirements["ubuntu"]="requirements_debian"
+requirements["ubuntu_static"]="requirements_debian"
 cntr_category=$((cntr_category + 1))
 ubuntu_static() {
   get_all_debian_static ubuntu-glibc http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6
@@ -61,6 +61,15 @@ cntr_category=$((cntr_category + 1))
 centos() {
   get_from_filelistgz centos-glibc http://mirror.centos.org/centos/ glibc i686
   get_from_filelistgz centos-glibc http://mirror.centos.org/centos/ glibc x86_64
+}
+
+
+categories[cntr_category]="centos_static"
+requirements["centos_static"]="requirements_centos"
+cntr_category=$((cntr_category + 1))
+centos() {
+  get_from_filelistgz centos-glibc http://mirror.centos.org/centos/ glibc-devel i686
+  get_from_filelistgz centos-glibc http://mirror.centos.org/centos/ glibc-devel x86_64
 }
 
 categories[cntr_category]="arch"
