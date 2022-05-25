@@ -167,7 +167,7 @@ get_all_debian() {
   local info=$1
   local url=$2
   local pkgname=$3
-  for f in `wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>"`; do
+  for f in `wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>" | uniq`; do
     get_debian "$url/$f" "$info" "$pkgname"
   done
   return 0
@@ -177,7 +177,7 @@ get_all_debian_static() {
   local info=$1
   local url=$2
   local pkgname=$3
-  for f in `wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'-dev(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>"`; do
+  for f in `wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'-dev(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>" | uniq`; do
     get_debian "$url/$f" "$info" "$pkgname" static
   done
   return 0
