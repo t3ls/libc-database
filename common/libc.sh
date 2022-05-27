@@ -6,14 +6,17 @@ die() {
   echo >&2 $1
   exit 1
 }
+export -f die
 
 dump_symbols() {
   readelf -Ws $1 | perl -n -e '/: (\w+)\s+\w+\s+(?:FUNC|OBJECT)\s+(?:\w+\s+){3}(\w+)\b(?:@@GLIBC)?/ && print "$2 $1\n"' | sort -u
 }
+export -f dump_symbols
 
 extract_label() {
   perl -n -e '/(\w+)/ && print $1'
 }
+export -f extract_label
 
 dump_libc_start_main_ret() {
   local call_main=`objdump -D $1 \
@@ -37,6 +40,7 @@ dump_libc_start_main_ret() {
     echo "__libc_start_main_ret $offset"
   fi
 }
+export -f dump_libc_start_main_ret
 
 dump_bin_sh() {
   local offset=`strings -a -t x $1 | grep '/bin/sh' | head -n1 | extract_label`
@@ -44,6 +48,7 @@ dump_bin_sh() {
     echo "str_bin_sh $offset"
   fi
 }
+export -f dump_bin_sh
 
 process_libc() {
   local libc=$1
@@ -59,6 +64,7 @@ process_libc() {
   echo "$info" > db/${id}.info
   echo "$url" > db/${id}.url
 }
+export -f process_libc
 
 process_libc_static() {
   local libc=$1
@@ -66,6 +72,7 @@ process_libc_static() {
   echo "  -> Writing libc ${libc} to db/${id}.a"
   cp $libc db/${id}.a
 }
+export -f process_libc_static
 
 index_libc() {
   local tmp="$1"
@@ -88,6 +95,7 @@ index_libc() {
     suffix=_$cnt
   done
 }
+export -f index_libc
 
 index_libc_static() {
   local tmp="$1"
@@ -108,6 +116,7 @@ index_libc_static() {
     suffix=_$cnt
   done
 }
+export -f index_libc_static
 
 check_id() {
   local id=$1
@@ -117,6 +126,7 @@ check_id() {
   fi
   return 0
 }
+export -f check_id
 
 requirements_general() {
   which readelf 1>/dev/null 2>&1 || return
