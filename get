@@ -25,19 +25,34 @@ ubuntu() {
   get_all_debian ubuntu-old-dietlibc http://old-releases.ubuntu.com/ubuntu/pool/universe/d/dietlibc/ dietlibc
 }
 
-categories[cntr_category]="ubuntu_static"
-requirements["ubuntu_static"]="requirements_debian"
+categories[cntr_category]="ubuntu_static_amd64"
+requirements["ubuntu_static_amd64"]="requirements_debian"
 cntr_category=$((cntr_category + 1))
-ubuntu_static() {
-  get_all_debian ubuntu-eglibc http://archive.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
-  get_all_debian ubuntu-glibc http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
-  get_all_debian ubuntu-musl http://archive.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
-  get_all_debian ubuntu-security-eglibc http://security.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
-  get_all_debian ubuntu-security-glibc http://security.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
-  get_all_debian ubuntu-security-musl http://security.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
-  get_all_debian ubuntu-old-eglibc http://old-releases.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
-  get_all_debian ubuntu-old-glibc http://old-releases.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
-  get_all_debian ubuntu-old-musl http://old-releases.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
+ubuntu_static_amd64() {
+  get_all_debian_amd64 ubuntu-eglibc http://archive.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
+  get_all_debian_amd64 ubuntu-glibc http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_amd64 ubuntu-musl http://archive.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
+  get_all_debian_amd64 ubuntu-security-eglibc http://security.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
+  get_all_debian_amd64 ubuntu-security-glibc http://security.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_amd64 ubuntu-security-musl http://security.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
+  get_all_debian_amd64 ubuntu-old-eglibc http://old-releases.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
+  get_all_debian_amd64 ubuntu-old-glibc http://old-releases.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_amd64 ubuntu-old-musl http://old-releases.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
+}
+
+categories[cntr_category]="ubuntu_static_i386"
+requirements["ubuntu_static_i386"]="requirements_debian"
+cntr_category=$((cntr_category + 1))
+ubuntu_static_i386() {
+  get_all_debian_i386 ubuntu-eglibc http://archive.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
+  get_all_debian_i386 ubuntu-glibc http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_i386 ubuntu-musl http://archive.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
+  get_all_debian_i386 ubuntu-security-eglibc http://security.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
+  get_all_debian_i386 ubuntu-security-glibc http://security.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_i386 ubuntu-security-musl http://security.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
+  get_all_debian_i386 ubuntu-old-eglibc http://old-releases.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
+  get_all_debian_i386 ubuntu-old-glibc http://old-releases.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_i386 ubuntu-old-musl http://old-releases.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
 }
 
 
@@ -50,13 +65,22 @@ debian() {
   get_all_debian debian-dietlibc https://deb.debian.org/debian/pool/main/d/dietlibc/ dietlibc
 }
 
-categories[cntr_category]="debian_static"
-requirements["debian_static"]="requirements_debian"
+categories[cntr_category]="debian_static_amd64"
+requirements["debian_static_amd64"]="requirements_debian"
 cntr_category=$((cntr_category + 1))
-debian_static() {
-  get_all_debian debian-glibc https://deb.debian.org/debian/pool/main/g/glibc/ libc6-dev static
-  get_all_debian debian-musl https://deb.debian.org/debian/pool/main/m/musl/ musl-dev static
-  get_all_debian debian-dietlibc https://deb.debian.org/debian/pool/main/d/dietlibc/ dietlibc-dev static
+debian_static_amd64() {
+  get_all_debian_amd64 debian-glibc https://deb.debian.org/debian/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_amd64 debian-musl https://deb.debian.org/debian/pool/main/m/musl/ musl-dev static
+  get_all_debian_amd64 debian-dietlibc https://deb.debian.org/debian/pool/main/d/dietlibc/ dietlibc-dev static
+}
+
+categories[cntr_category]="debian_static_i386"
+requirements["debian_static_i386"]="requirements_debian"
+cntr_category=$((cntr_category + 1))
+debian_static_i386() {
+  get_all_debian_i386 debian-glibc https://deb.debian.org/debian/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_i386 debian-musl https://deb.debian.org/debian/pool/main/m/musl/ musl-dev static
+  get_all_debian_i386 debian-dietlibc https://deb.debian.org/debian/pool/main/d/dietlibc/ dietlibc-dev static
 }
 
 categories[cntr_category]="rpm"
@@ -174,13 +198,22 @@ kali() {
   get_all_debian kali-musl https://http.kali.org/pool/main/m/musl/ musl
 }
 
-categories[cntr_category]="kali_static"
-requirements["kali_static"]="requirements_debian"
+categories[cntr_category]="kali_static_amd64"
+requirements["kali_static_amd64"]="requirements_debian"
 cntr_category=$((cntr_category + 1))
-kali_static() {
-  get_all_debian kali-glibc https://http.kali.org/pool/main/g/glibc/ libc6-dev static
-  get_all_debian kali-musl https://http.kali.org/pool/main/m/musl/ musl-dev static
+kali_static_amd64() {
+  get_all_debian_amd64 kali-glibc https://http.kali.org/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_amd64 kali-musl https://http.kali.org/pool/main/m/musl/ musl-dev static
 }
+
+categories[cntr_category]="kali_static_i386"
+requirements["kali_static_i386"]="requirements_debian"
+cntr_category=$((cntr_category + 1))
+kali_static_i386() {
+  get_all_debian_i386 kali-glibc https://http.kali.org/pool/main/g/glibc/ libc6-dev static
+  get_all_debian_i386 kali-musl https://http.kali.org/pool/main/m/musl/ musl-dev static
+}
+
 categories[cntr_category]="parrotsec"
 requirements["parrotsec"]="requirements_debian"
 cntr_category=$((cntr_category + 1))

@@ -175,16 +175,28 @@ get_debian() {
 }
 export -f get_debian
 
-get_all_debian() {
+get_all_debian_amd64() {
   local info=$1
   local url=$2
   local pkgname=$3
   local static=$4
-  wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>" | uniq | \
+  wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*amd64\.deb' |grep -v "</a>" | uniq | \
     parallel -j 20 bash -c \"get_debian "$url"/{1} "$info" "$pkgname" "$static"\" :::: -
   return 0
 }
-export -f get_all_debian
+export -f get_all_debian_amd64
+
+
+get_all_debian_i386() {
+  local info=$1
+  local url=$2
+  local pkgname=$3
+  local static=$4
+  wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*i386\.deb' |grep -v "</a>" | uniq | \
+    parallel -j 20 bash -c \"get_debian "$url"/{1} "$info" "$pkgname" "$static"\" :::: -
+  return 0
+}
+export -f get_all_debian_i386
 
 requirements_debian() {
   which mktemp 1>/dev/null 2>&1 || return
