@@ -137,6 +137,7 @@ requirements_general() {
   which grep    1>/dev/null 2>&1 || return
   return 0
 }
+export -f requirements_general
 
 # ===== Debian-like ===== #
 
@@ -183,6 +184,7 @@ get_all_debian() {
     parallel -j 20 get_debian "$url/{1}" "$info" "$pkgname" "$static" :::: -
   return 0
 }
+export -f get_all_debian
 
 requirements_debian() {
   which mktemp 1>/dev/null 2>&1 || return
@@ -194,6 +196,7 @@ requirements_debian() {
   which zstd   1>/dev/null 2>&1 || return
   return 0
 }
+export -f requirements_debian
 
 # ===== RPM ===== #
 
@@ -255,6 +258,7 @@ get_all_rpm() {
     sleep .1
   done
 }
+export -f get_all_rpm
 
 requirements_rpm() {
   which mktemp   1>/dev/null 2>&1 || return
@@ -265,6 +269,7 @@ requirements_rpm() {
   which grep     1>/dev/null 2>&1 || return
   return 0
 }
+export -f requirements_rpm
 
 # ===== CentOS ===== #
 
@@ -301,6 +306,7 @@ requirements_centos() {
   requirements_rpm || return
   return 0
 }
+export -f requirements_centos
 
 
 # ===== Arch ===== #
@@ -366,6 +372,7 @@ get_all_pkg() {
     sleep .1
   done
 }
+export -f get_all_pkg
 
 requirements_pkg() {
   which mktemp 1>/dev/null 2>&1 || return
@@ -379,6 +386,7 @@ requirements_pkg() {
   which xz     1>/dev/null 2>&1 || return
   return 0
 }
+export -f requirements_pkg
 
 
 # ===== Alpine ===== #
@@ -438,6 +446,7 @@ get_all_apk() {
     sleep .1
   done
 }
+export -f get_all_apk
 
 requirements_apk() {
   which mktemp 1>/dev/null 2>&1 || return
@@ -448,6 +457,7 @@ requirements_apk() {
   which grep   1>/dev/null 2>&1 || return
   return 0
 }
+export -f requirements_apk
 
 # ===== Launchpad =====
 
@@ -472,12 +482,14 @@ get_all_launchpad() {
     done
   done
 }
+export -f get_all_launchpad
 
 requirements_launchpad() {
   which jq       1>/dev/null 2>&1 || return
   requirements_debian || return
   return 0
 }
+export -f requirements_launchpad
 
 # ===== Local ===== #
 
@@ -490,8 +502,10 @@ add_local() {
   check_id $id || return
   process_libc $libc $id $info
 }
+export -f add_local
 
 requirements_local() {
   which sha1sum 1>/dev/null 2>&1 || return
   return 0
 }
+export -f requirements_local
