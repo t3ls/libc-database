@@ -229,12 +229,20 @@ launchpad() {
   get_all_launchpad launchpad-ubuntu-glibc ubuntu libc6 i386
 }
 
-categories[cntr_category]="launchpad_static"
-requirements["launchpad_static"]="requirements_launchpad"
+categories[cntr_category]="launchpad_static_amd64"
+requirements["launchpad_static_amd64"]="requirements_launchpad"
 cntr_category=$((cntr_category + 1))
-launchpad_static() {
-  get_all_launchpad launchpad-ubuntu-glibc ubuntu libc6-dev amd64 static
-  get_all_launchpad launchpad-ubuntu-glibc ubuntu libc6-dev i386 static
+launchpad_static_amd64() {
+  get_all_launchpad_amd64 launchpad-ubuntu-glibc ubuntu libc6-dev amd64 static
+  get_all_launchpad_amd64 launchpad-ubuntu-glibc ubuntu libc6-dev i386 static
+}
+
+categories[cntr_category]="launchpad_static_i386"
+requirements["launchpad_static_i386"]="requirements_launchpad"
+cntr_category=$((cntr_category + 1))
+launchpad_static_i386() {
+  get_all_launchpad_i386 launchpad-ubuntu-glibc ubuntu libc6-dev amd64 static
+  get_all_launchpad_i386 launchpad-ubuntu-glibc ubuntu libc6-dev i386 static
 }
 
 help() {
