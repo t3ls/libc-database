@@ -180,7 +180,7 @@ get_all_debian() {
   local pkgname=$3
   local static=$4
   wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>" | uniq | \
-    parallel get_debian ::: "$url"/{} "$info" "$pkgname" "$static"
+    parallel get_debian "$url/{1}" "$info" "$pkgname" "$static" :::: -
   return 0
 }
 
