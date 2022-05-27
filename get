@@ -1,6 +1,6 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-source common/libc.sh
+common/libc.sh
 
 cntr_category=1
 declare -a categories
