@@ -28,9 +28,18 @@ categories[cntr_category]="ubuntu_static"
 requirements["ubuntu_static"]="requirements_debian"
 cntr_category=$((cntr_category + 1))
 ubuntu_static() {
-  get_all_debian_static ubuntu-glibc http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6
-  get_all_debian_static ubuntu-security-glibc http://security.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6
-  get_all_debian_static ubuntu-old-glibc http://old-releases.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6
+  get_all_debian ubuntu-eglibc http://archive.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
+  get_all_debian ubuntu-glibc http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
+  get_all_debian ubuntu-musl http://archive.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
+  get_all_debian ubuntu-dietlibc http://archive.ubuntu.com/ubuntu/pool/universe/d/dietlibc/ dietlibc-dev static
+  get_all_debian ubuntu-security-eglibc http://security.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
+  get_all_debian ubuntu-security-glibc http://security.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
+  get_all_debian ubuntu-security-musl http://security.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
+  get_all_debian ubuntu-security-dietlibc http://security.ubuntu.com/ubuntu/pool/universe/d/dietlibc/ dietlibc-dev static
+  get_all_debian ubuntu-old-eglibc http://old-releases.ubuntu.com/ubuntu/pool/main/e/eglibc/ libc6-dev static
+  get_all_debian ubuntu-old-glibc http://old-releases.ubuntu.com/ubuntu/pool/main/g/glibc/ libc6-dev static
+  get_all_debian ubuntu-old-musl http://old-releases.ubuntu.com/ubuntu/pool/universe/m/musl/ musl-dev static
+  get_all_debian ubuntu-old-dietlibc http://old-releases.ubuntu.com/ubuntu/pool/universe/d/dietlibc/ dietlibc-dev static
 }
 
 
@@ -41,6 +50,15 @@ debian() {
   get_all_debian debian-glibc https://deb.debian.org/debian/pool/main/g/glibc/ libc6
   get_all_debian debian-musl https://deb.debian.org/debian/pool/main/m/musl/ musl
   get_all_debian debian-dietlibc https://deb.debian.org/debian/pool/main/d/dietlibc/ dietlibc
+}
+
+categories[cntr_category]="debian_static"
+requirements["debian_static"]="requirements_debian"
+cntr_category=$((cntr_category + 1))
+debian_static() {
+  get_all_debian debian-glibc https://deb.debian.org/debian/pool/main/g/glibc/ libc6-dev static
+  get_all_debian debian-musl https://deb.debian.org/debian/pool/main/m/musl/ musl-dev static
+  get_all_debian debian-dietlibc https://deb.debian.org/debian/pool/main/d/dietlibc/ dietlibc-dev static
 }
 
 categories[cntr_category]="rpm"
@@ -55,6 +73,19 @@ rpm() {
   get_all_rpm rpm musl musl i686
 }
 
+categories[cntr_category]="rpm_static"
+requirements["rpm_static"]="requirements_rpm"
+cntr_category=$((cntr_category + 1))
+rpm_static() {
+  get_all_rpm rpm glibc-devel libc-devel x86_64 static
+  get_all_rpm rpm glibc-devel libc-devel i586 static
+  get_all_rpm rpm glibc-devel libc-devel i686 static
+  get_all_rpm rpm musl-devel musl-devel x86_64 static
+  get_all_rpm rpm musl-devel musl-devel i586 static
+  get_all_rpm rpm musl-devel musl-devel i686 static
+}
+
+
 categories[cntr_category]="centos"
 requirements["centos"]="requirements_centos"
 cntr_category=$((cntr_category + 1))
@@ -67,9 +98,9 @@ centos() {
 categories[cntr_category]="centos_static"
 requirements["centos_static"]="requirements_centos"
 cntr_category=$((cntr_category + 1))
-centos() {
-  get_from_filelistgz centos-glibc http://mirror.centos.org/centos/ glibc-devel i686
-  get_from_filelistgz centos-glibc http://mirror.centos.org/centos/ glibc-devel x86_64
+centos_static() {
+  get_from_filelistgz centos-glibc http://mirror.centos.org/centos/ glibc-devel i686 static
+  get_from_filelistgz centos-glibc http://mirror.centos.org/centos/ glibc-devel x86_64 static
 }
 
 categories[cntr_category]="arch"
@@ -109,12 +140,48 @@ alpine() {
   done
 }
 
+categories[cntr_category]="alpine_static"
+requirements["alpine_static"]="requirements_apk"
+cntr_category=$((cntr_category + 1))
+alpine_static() {
+  alpine_versions=(
+      latest-stable
+      edge
+      v3.0
+      v3.1
+      v3.2
+      v3.3
+      v3.4
+      v3.5
+      v3.6
+      v3.7
+      v3.8
+      v3.9
+      v3.10
+      v3.11
+      v3.12
+  )
+
+  for version in "${alpine_versions[@]}"; do
+    get_all_apk alpine-musl http://dl-cdn.alpinelinux.org/alpine/ "$version" main x86_64 musl-dev static
+    get_all_apk alpine-musl http://dl-cdn.alpinelinux.org/alpine/ "$version" main x86 musl-dev static
+  done
+}
+
 categories[cntr_category]="kali"
 requirements["kali"]="requirements_debian"
 cntr_category=$((cntr_category + 1))
 kali() {
   get_all_debian kali-glibc https://http.kali.org/pool/main/g/glibc/ libc6
   get_all_debian kali-musl https://http.kali.org/pool/main/m/musl/ musl
+}
+
+categories[cntr_category]="kali_static"
+requirements["kali_static"]="requirements_debian"
+cntr_category=$((cntr_category + 1))
+kali_static() {
+  get_all_debian kali-glibc https://http.kali.org/pool/main/g/glibc/ libc6-dev static
+  get_all_debian kali-musl https://http.kali.org/pool/main/m/musl/ musl-dev static
 }
 categories[cntr_category]="parrotsec"
 requirements["parrotsec"]="requirements_debian"
@@ -129,6 +196,14 @@ cntr_category=$((cntr_category + 1))
 launchpad() {
   get_all_launchpad launchpad-ubuntu-glibc ubuntu libc6 amd64
   get_all_launchpad launchpad-ubuntu-glibc ubuntu libc6 i386
+}
+
+categories[cntr_category]="launchpad_static"
+requirements["launchpad_static"]="requirements_launchpad"
+cntr_category=$((cntr_category + 1))
+launchpad_static() {
+  get_all_launchpad launchpad-ubuntu-glibc ubuntu libc6-dev amd64 static
+  get_all_launchpad launchpad-ubuntu-glibc ubuntu libc6-dev i386 static
 }
 
 help() {

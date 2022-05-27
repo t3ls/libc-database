@@ -162,24 +162,15 @@ get_debian() {
   fi
   rm -rf $tmp
 }
+export -f get_debian
 
 get_all_debian() {
   local info=$1
   local url=$2
   local pkgname=$3
-  for f in `wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>" | uniq`; do
-    get_debian "$url/$f" "$info" "$pkgname"
-  done
-  return 0
-}
-
-get_all_debian_static() {
-  local info=$1
-  local url=$2
-  local pkgname=$3
-  for f in `wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'-dev(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>" | uniq`; do
-    get_debian "$url/$f" "$info" "$pkgname" static
-  done
+  local static=$4
+  wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*(amd64|i386)\.deb' |grep -v "</a>" | uniq | \
+    parallel get_debian ::: "$url/$f" "$info" "$pkgname" "$static"
   return 0
 }
 
@@ -223,12 +214,14 @@ get_rpm() {
   fi
   rm -rf "$tmp"
 }
+export -f get_rpm
 
 get_all_rpm() {
   local info=$1
   local pkg=$2
   local pkgname=$3
   local arch=$4
+  local static=$5
   local website="http://rpmfind.net"
   local searchurl="$website/linux/rpm2html/search.php?query=$pkg"
   echo "Getting RPM package location: $info $pkg $pkgname $arch"
@@ -248,7 +241,7 @@ get_all_rpm() {
 
   for url in $urls
   do
-    get_rpm "$website$url" "$info" "$pkgname"
+    get_rpm "$website$url" "$info" "$pkgname" "$static"
     sleep .1
   done
 }
@@ -270,6 +263,7 @@ get_from_filelistgz() {
   local website=$2
   local pkg=$3
   local arch=$4
+  local static=$5
   echo "Getting package $pkg locations"
   local url=""
   for i in $(seq 1 3); do
@@ -284,34 +278,11 @@ get_from_filelistgz() {
   [[ -n "$urls" ]] || die "Failed to get package version"
   for url in $urls
   do
-    get_rpm "$website/$url" "$info" "$pkg"
+    get_rpm "$website/$url" "$info" "$pkg" "$static"
     sleep .1
   done
 }
-
-get_from_filelistgz_static() {
-  local info=$1
-  local website=$2
-  local pkg=$3
-  local arch=$4
-  echo "Getting package $pkg locations"
-  local url=""
-  for i in $(seq 1 3); do
-    urls=$(wget "$website/filelist.gz" -O - 2>/dev/null \
-      | gzip -cd \
-      | grep -h "$pkg-[0-9]" \
-      | grep -h "$arch\.rpm")
-    [[ -z "$urls" ]] || break
-    echo "Retrying..."
-    sleep 1
-  done
-  [[ -n "$urls" ]] || die "Failed to get package version"
-  for url in $urls
-  do
-    get_rpm "$website/$url" "$info" "$pkg" static
-    sleep .1
-  done
-}
+export -f get_from_filelistgz
 
 requirements_centos() {
   which wget       1>/dev/null 2>&1 || return
@@ -360,11 +331,13 @@ get_pkg() {
   fi
   rm -rf "$tmp"
 }
+export -f get_pkg
 
 get_all_pkg() {
   local info=$1
   local directory=$2
   local pkgname=$3
+  local static=$4
   echo "Getting package $info locations"
   local url=""
   for i in $(seq 1 3); do
@@ -379,7 +352,7 @@ get_all_pkg() {
   [[ -n "$urls" ]] || die "Failed to get package version"
   for url in $urls
   do
-    get_pkg "$directory/$url" "$info" "$pkgname"
+    get_pkg "$directory/$url" "$info" "$pkgname" "$static"
     sleep .1
   done
 }
@@ -419,9 +392,14 @@ get_apk() {
   pushd $tmp 1>/dev/null
   tar xzf pkg.tar.gz --warning=none
   popd 1>/dev/null
-  index_libc "$tmp" "$id" "$info" "$url"
+  if [[ "$#" -eq 4 ]] ; then
+    index_libc_static "$tmp" "$id" "$info" "$url"
+  else
+    index_libc "$tmp" "$id" "$info" "$url"
+  fi
   rm -rf $tmp
 }
+export -f get_apk
 
 get_all_apk() {
   local info=$1
@@ -430,6 +408,7 @@ get_all_apk() {
   local component=$4
   local arch=$5
   local pkgname=$6
+  local static=$7
   local directory="$repo/$version/$component/$arch/"
   echo "Getting package $info locations"
   local url=""
@@ -445,7 +424,7 @@ get_all_apk() {
   [[ -n "$urls" ]] || die "Failed to get package version"
   for url in $urls
   do
-    get_apk "$directory$url" "$info" "$pkgname"
+    get_apk "$directory$url" "$info" "$pkgname" "$static"
     sleep .1
   done
 }
@@ -467,6 +446,7 @@ get_all_launchpad() {
   local distro="$2"
   local pkgname="$3"
   local arch="$4"
+  local static="$5"
 
   local series=""
   for series in $(wget "https://api.launchpad.net/1.0/$distro/series" -O - 2>/dev/null | jq '.entries[] | .name'); do
@@ -478,7 +458,7 @@ get_all_launchpad() {
     for url in $urls; do
       url=$(echo $url | grep -Eo '[^"]+')
       # some old packages are deleted. ignore those.
-      get_debian "$url" "$info-$series" "$pkgname"
+      get_debian "$url" "$info-$series" "$pkgname" "$static"
     done
   done
 }
