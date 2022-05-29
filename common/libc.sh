@@ -549,7 +549,6 @@ requirements_local() {
   which sha1sum 1>/dev/null 2>&1 || return
   return 0
 }
-export -f requirements_local
+# export -f requirements_local
 
-FUNCTIONS=`declare -pf`
-$FUNCTIONS
+eval "$(declare -F | sed -e 's/-f /-fx /')"
