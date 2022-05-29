@@ -218,10 +218,8 @@ get_rpm() {
     (cpio -id --quiet || die "cpio failed")
   popd 1>/dev/null
   if [[ "$#" -eq 4 ]] ; then
-    echo 'rpm index_libc_static'
     index_libc_static "$tmp" "$id" "$info" "$url"
   else
-    echo 'rpm index_libc'
     index_libc "$tmp" "$id" "$info" "$url"
   fi
   rm -rf "$tmp"
