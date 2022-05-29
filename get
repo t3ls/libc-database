@@ -1,6 +1,5 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-common/libc.sh
 source common/libc.sh
 
 cntr_category=1

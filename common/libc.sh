@@ -184,7 +184,7 @@ get_all_debian_amd64() {
     parallel -j 20 bash -c \"get_debian "$url"/{1} "$info" "$pkgname" "$static"\" :::: -
   return 0
 }
-export -f get_all_debian_amd64
+# export -f get_all_debian_amd64
 
 
 get_all_debian_i386() {
@@ -497,7 +497,7 @@ get_all_launchpad_amd64() {
     done
   done
 }
-export -f get_all_launchpad_amd64
+# export -f get_all_launchpad_amd64
 
 get_all_launchpad_i386() {
   local info="$1"
@@ -523,14 +523,14 @@ get_all_launchpad_i386() {
     done
   done
 }
-export -f get_all_launchpad_i386
+# export -f get_all_launchpad_i386
 
 requirements_launchpad() {
   which jq       1>/dev/null 2>&1 || return
   requirements_debian || return
   return 0
 }
-export -f requirements_launchpad
+# export -f requirements_launchpad
 
 # ===== Local ===== #
 
@@ -543,7 +543,7 @@ add_local() {
   check_id $id || return
   process_libc $libc $id $info
 }
-export -f add_local
+# export -f add_local
 
 requirements_local() {
   which sha1sum 1>/dev/null 2>&1 || return
