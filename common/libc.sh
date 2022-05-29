@@ -551,4 +551,5 @@ requirements_local() {
 }
 export -f requirements_local
 
-declare -pf
+FUNCTIONS=`declare -pf`
+$FUNCTIONS
