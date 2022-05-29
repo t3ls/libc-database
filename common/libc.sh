@@ -96,7 +96,7 @@ index_libc_static() {
   local url="$4"
   suffix=
   cnt=1
-  libs=$(find "$tmp" -name 'libc.a')
+  libs=$(find "$tmp" -name 'libc.a';find "$tmp" -name 'libc[-_.][a-z]*.a*')
   [[ -z "$libs" ]] && die "Cannot locate the libc file"
   for libc in $libs; do
     if ! (file "$libc" | grep -q 'ar archive') ; then
@@ -248,11 +248,7 @@ get_all_rpm() {
     return
   fi
 
-  for url in $urls
-  do
-    get_rpm "$website$url" "$info" "$pkgname" "$static"
-    sleep .1
-  done
+  parallel -j 20 bash -c \"get_rpm "$website"{1} "$info" "$pkgname" "$static"\" :::: $urls
 }
 
 requirements_rpm() {
@@ -285,11 +281,8 @@ get_from_filelistgz() {
     sleep 1
   done
   [[ -n "$urls" ]] || die "Failed to get package version"
-  for url in $urls
-  do
-    get_rpm "$website/$url" "$info" "$pkg" "$static"
-    sleep .1
-  done
+
+  parallel -j 20 bash -c \"get_rpm "$website"{1} "$info" "$pkgname" "$static"\" :::: $urls
 }
 
 requirements_centos() {
@@ -357,11 +350,8 @@ get_all_pkg() {
     sleep 1
   done
   [[ -n "$urls" ]] || die "Failed to get package version"
-  for url in $urls
-  do
-    get_pkg "$directory/$url" "$info" "$pkgname" "$static"
-    sleep .1
-  done
+
+  parallel -j 20 bash -c \"get_pkg "$directory"/{1} "$info" "$pkgname" "$static"\" :::: $urls
 }
 
 requirements_pkg() {
@@ -428,11 +418,8 @@ get_all_apk() {
     sleep 1
   done
   [[ -n "$urls" ]] || die "Failed to get package version"
-  for url in $urls
-  do
-    get_apk "$directory$url" "$info" "$pkgname" "$static"
-    sleep .1
-  done
+
+  parallel -j 20 bash -c \"get_pkg "$directory"/{1} "$info" "$pkgname" "$static"\" :::: $urls
 }
 
 requirements_apk() {
@@ -485,15 +472,9 @@ get_all_launchpad_i386() {
     echo "Launchpad: Series $series"
     local apiurl="https://api.launchpad.net/1.0/$distro/+archive/primary?ws.op=getPublishedBinaries&binary_name=$pkgname&exact_match=true&distro_arch_series=https://api.launchpad.net/1.0/$distro/$series/$arch"
     local url=""
-    urls=$(wget "$apiurl" -O - 2>/dev/null | jq '[ .entries[] | .build_link + "/+files/" + .binary_package_name + "_" + .source_package_version + "_" + (.distro_arch_series_link | split("/") | .[-1]) + ".deb" | ltrimstr("https://api.launchpad.net/1.0/") | "https://launchpad.net/" + . ] | unique | .[]')
-    for url in $urls; do
-      url=$(echo $url | grep -Eo '[^"]+')
-      if [[ -z $(echo $url | grep -q 'i.86\.deb') ]]; then
-        continue
-      fi
-      # some old packages are deleted. ignore those.
-      get_debian "$url" "$info-$series" "$pkgname" "$static"
-    done
+    wget "$apiurl" -O - 2>/dev/null | jq '[ .entries[] | .build_link + "/+files/" + .binary_package_name + "_" + .source_package_version + "_" + (.distro_arch_series_link | split("/") | .[-1]) + ".deb" | ltrimstr("https://api.launchpad.net/1.0/") | "https://launchpad.net/" + . ] | unique | .[]' |\
+      parallel echo {} | grep -Eo '[^"]+' | grep -q 'i.86\.deb' | \
+      parallel -j 20 bash -c \"get_debian {1} "$info-$series" "$pkgname" "$static"\" :::: -
   done
 }
 
