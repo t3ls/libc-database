@@ -266,6 +266,7 @@ get_from_filelistgz() {
   local pkg=$3
   local arch=$4
   local static=$5
+  echo "static: $static"
   echo "Getting package $pkg locations"
   local url=""
   for i in $(seq 1 3); do
