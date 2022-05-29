@@ -169,7 +169,7 @@ get_all_debian_amd64() {
   local pkgname=$3
   local static=$4
   wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*amd64\.deb' |grep -v "</a>" | uniq | \
-    parallel -j 20 bash -c \"get_debian "$url"/{1} "$info" "$pkgname" "$static"\" :::: -
+    parallel -j 20 bash -c \"get_debian "$url"/{} "$info" "$pkgname" "$static"\"
   return 0
 }
 
@@ -180,7 +180,7 @@ get_all_debian_i386() {
   local pkgname=$3
   local static=$4
   wget $url/ -O - 2>/dev/null | grep -Eoh "$pkgname"'(-i386|-amd64|-x32)?_[^"]*i386\.deb' |grep -v "</a>" | uniq | \
-    parallel -j 20 bash -c \"get_debian "$url"/{1} "$info" "$pkgname" "$static"\" :::: -
+    parallel -j 20 bash -c \"get_debian "$url"/{} "$info" "$pkgname" "$static"\"
   return 0
 }
 
@@ -248,7 +248,7 @@ get_all_rpm() {
     return
   fi
 
-  parallel -j 20 bash -c \"get_rpm "$website"{1} "$info" "$pkgname" "$static"\" :::: $urls
+  echo $urls | parallel -j 20 bash -c \"get_rpm "$website"{} "$info" "$pkgname" "$static"\"
 }
 
 requirements_rpm() {
@@ -282,7 +282,7 @@ get_from_filelistgz() {
   done
   [[ -n "$urls" ]] || die "Failed to get package version"
 
-  parallel -j 20 bash -c \"get_rpm "$website"{1} "$info" "$pkgname" "$static"\" :::: $urls
+  echo $urls | parallel -j 20 bash -c \"get_rpm "$website"{1} "$info" "$pkgname" "$static"\"
 }
 
 requirements_centos() {
@@ -351,7 +351,7 @@ get_all_pkg() {
   done
   [[ -n "$urls" ]] || die "Failed to get package version"
 
-  parallel -j 20 bash -c \"get_pkg "$directory"/{1} "$info" "$pkgname" "$static"\" :::: $urls
+  echo $urls | parallel -j 20 bash -c \"get_pkg "$directory"/{} "$info" "$pkgname" "$static"\"
 }
 
 requirements_pkg() {
@@ -419,7 +419,7 @@ get_all_apk() {
   done
   [[ -n "$urls" ]] || die "Failed to get package version"
 
-  parallel -j 20 bash -c \"get_pkg "$directory"/{1} "$info" "$pkgname" "$static"\" :::: $urls
+  echo $urls | parallel -j 20 bash -c \"get_pkg "$directory"/{} "$info" "$pkgname" "$static"\"
 }
 
 requirements_apk() {
@@ -447,16 +447,9 @@ get_all_launchpad_amd64() {
     echo "Launchpad: Series $series"
     local apiurl="https://api.launchpad.net/1.0/$distro/+archive/primary?ws.op=getPublishedBinaries&binary_name=$pkgname&exact_match=true&distro_arch_series=https://api.launchpad.net/1.0/$distro/$series/$arch"
     local url=""
-    urls=$(wget "$apiurl" -O - 2>/dev/null | jq '[ .entries[] | .build_link + "/+files/" + .binary_package_name + "_" + .source_package_version + "_" + (.distro_arch_series_link | split("/") | .[-1]) + ".deb" | ltrimstr("https://api.launchpad.net/1.0/") | "https://launchpad.net/" + . ] | unique | .[]')
-    for url in $urls; do
-      url=$(echo $url | grep -Eo '[^"]+')
-      if [[ -z $(echo $url | grep -q 'amd64\.deb') ]]; then
-        continue
-      fi
-      echo \"get_debian "$url" "$info-$series" "$pkgname" "$static"\"
-      # some old packages are deleted. ignore those.
-      get_debian "$url" "$info-$series" "$pkgname" "$static"
-    done
+    wget "$apiurl" -O - 2>/dev/null | jq '[ .entries[] | .build_link + "/+files/" + .binary_package_name + "_" + .source_package_version + "_" + (.distro_arch_series_link | split("/") | .[-1]) + ".deb" | ltrimstr("https://api.launchpad.net/1.0/") | "https://launchpad.net/" + . ] | unique | .[]' |\
+      parallel echo {} | grep -Eo '[^"]+' | grep 'amd64\.deb' | \
+      xargs -i get_debian {} "$info-$series" "$pkgname" "$static"
   done
 }
 
@@ -474,7 +467,8 @@ get_all_launchpad_i386() {
     local apiurl="https://api.launchpad.net/1.0/$distro/+archive/primary?ws.op=getPublishedBinaries&binary_name=$pkgname&exact_match=true&distro_arch_series=https://api.launchpad.net/1.0/$distro/$series/$arch"
     local url=""
     wget "$apiurl" -O - 2>/dev/null | jq '[ .entries[] | .build_link + "/+files/" + .binary_package_name + "_" + .source_package_version + "_" + (.distro_arch_series_link | split("/") | .[-1]) + ".deb" | ltrimstr("https://api.launchpad.net/1.0/") | "https://launchpad.net/" + . ] | unique | .[]' |\
-      parallel echo {}
+      parallel echo {} | grep -Eo '[^"]+' | grep 'i.86\.deb' | \
+      xargs -i get_debian {} "$info-$series" "$pkgname" "$static"
   done
 }
 
