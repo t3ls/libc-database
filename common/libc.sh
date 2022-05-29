@@ -202,7 +202,6 @@ get_rpm() {
   local info="$2"
   local pkgname="$3"
   local tmp="$(mktemp -d)"
-  echo "args: $1 $2 $3 $4"
   echo "Getting $info"
   echo "  -> Location: $url"
   local id=$(echo "$url" | perl -n -e '/('"$pkgname"'[^\/]*)\./ && print $1')
@@ -267,7 +266,6 @@ get_from_filelistgz() {
   local pkg=$3
   local arch=$4
   local static=$5
-  echo "static: $static"
   echo "Getting package $pkg locations"
   local url=""
   for i in $(seq 1 3); do
@@ -275,7 +273,7 @@ get_from_filelistgz() {
       | gzip -cd \
       | grep -h "$pkg-[0-9]" \
       | grep -h "$arch\.rpm" \
-      | parallel -j 20 bash -c \"source common/libc.sh \&\& get_rpm "$website"{} "$info" "$pkgname" "$static"\" \
+      | parallel -j 20 bash -c \"source common/libc.sh \&\& get_rpm "$website"{} "$info" "$pkg" "$static"\" \
       && break
     echo "Retrying..."
     sleep 1
