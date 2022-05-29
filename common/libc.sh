@@ -453,6 +453,7 @@ get_all_launchpad_amd64() {
       if [[ -z $(echo $url | grep -q 'amd64\.deb') ]]; then
         continue
       fi
+      echo \"get_debian "$url" "$info-$series" "$pkgname" "$static"\"
       # some old packages are deleted. ignore those.
       get_debian "$url" "$info-$series" "$pkgname" "$static"
     done
@@ -474,7 +475,7 @@ get_all_launchpad_i386() {
     local url=""
     wget "$apiurl" -O - 2>/dev/null | jq '[ .entries[] | .build_link + "/+files/" + .binary_package_name + "_" + .source_package_version + "_" + (.distro_arch_series_link | split("/") | .[-1]) + ".deb" | ltrimstr("https://api.launchpad.net/1.0/") | "https://launchpad.net/" + . ] | unique | .[]' |\
       parallel echo {} | grep -Eo '[^"]+' | grep -q 'i.86\.deb' | \
-      parallel -j 20 bash -c \"get_debian {1} "$info-$series" "$pkgname" "$static"\" :::: -
+      parallel -j 20 bash -c \"echo "get_debian {1} "$info-$series" "$pkgname" "$static""\" :::: -
   done
 }
 
