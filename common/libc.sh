@@ -449,7 +449,7 @@ get_all_launchpad_amd64() {
     local url=""
     wget "$apiurl" -O - 2>/dev/null | jq '[ .entries[] | .build_link + "/+files/" + .binary_package_name + "_" + .source_package_version + "_" + (.distro_arch_series_link | split("/") | .[-1]) + ".deb" | ltrimstr("https://api.launchpad.net/1.0/") | "https://launchpad.net/" + . ] | unique | .[]' |\
       parallel echo {} | grep -Eo '[^"]+' | grep 'amd64\.deb' | \
-      xargs -i get_debian {} "$info-$series" "$pkgname" "$static"
+      parallel get_debian {} "$info-$series" "$pkgname" "$static"
   done
 }
 
@@ -468,7 +468,7 @@ get_all_launchpad_i386() {
     local url=""
     wget "$apiurl" -O - 2>/dev/null | jq '[ .entries[] | .build_link + "/+files/" + .binary_package_name + "_" + .source_package_version + "_" + (.distro_arch_series_link | split("/") | .[-1]) + ".deb" | ltrimstr("https://api.launchpad.net/1.0/") | "https://launchpad.net/" + . ] | unique | .[]' |\
       parallel echo {} | grep -Eo '[^"]+' | grep 'i.86\.deb' | \
-      xargs -i get_debian {} "$info-$series" "$pkgname" "$static"
+      parallel get_debian {} "$info-$series" "$pkgname" "$static"
   done
 }
 
