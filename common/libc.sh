@@ -202,6 +202,7 @@ get_rpm() {
   local info="$2"
   local pkgname="$3"
   local tmp="$(mktemp -d)"
+  echo "args: $1 $2 $3 $4"
   echo "Getting $info"
   echo "  -> Location: $url"
   local id=$(echo "$url" | perl -n -e '/('"$pkgname"'[^\/]*)\./ && print $1')
