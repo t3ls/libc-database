@@ -236,19 +236,14 @@ get_all_rpm() {
   echo "Getting RPM package location: $info $pkg $pkgname $arch"
   local url=""
   for i in $(seq 1 3); do
-    urls=$(wget "$searchurl" -O - 2>/dev/null \
-      | grep -oh "/[^']*${pkgname}[^']*\.$arch\.rpm")
-    [[ -z "$urls" ]] || break
+    wget "$searchurl" -O - 2>/dev/null \
+      | grep -oh "/[^']*${pkgname}[^']*\.$arch\.rpm" \
+      | parallel -j 20 bash -c \"source common/libc.sh \&\& get_rpm "$website"{} "$info" "$pkgname" "$static"\" \
+      && break
     echo "Retrying..."
     sleep 1
   done
 
-  if ! [[ -n "$urls" ]]; then
-    echo >&2 "Failed to get RPM package URL for $info $pkg $pkgname $arch"
-    return
-  fi
-
-  echo $urls | parallel -j 20 bash -c \"source common/libc.sh \&\& get_rpm "$website"{} "$info" "$pkgname" "$static"\"
 }
 
 requirements_rpm() {
@@ -272,17 +267,15 @@ get_from_filelistgz() {
   echo "Getting package $pkg locations"
   local url=""
   for i in $(seq 1 3); do
-    urls=$(wget "$website/filelist.gz" -O - 2>/dev/null \
+    wget "$website/filelist.gz" -O - 2>/dev/null \
       | gzip -cd \
       | grep -h "$pkg-[0-9]" \
-      | grep -h "$arch\.rpm")
-    [[ -z "$urls" ]] || break
+      | grep -h "$arch\.rpm" \
+      | parallel -j 20 bash -c \"source common/libc.sh \&\& get_rpm "$website"{} "$info" "$pkgname" "$static"\" \
+      && break
     echo "Retrying..."
     sleep 1
   done
-  [[ -n "$urls" ]] || die "Failed to get package version"
-
-  echo $urls | parallel -j 20 bash -c \"source common/libc.sh \&\& get_rpm "$website"{1} "$info" "$pkgname" "$static"\"
 }
 
 requirements_centos() {
@@ -341,17 +334,15 @@ get_all_pkg() {
   echo "Getting package $info locations"
   local url=""
   for i in $(seq 1 3); do
-    urls=$(wget "$directory" -O - 2>/dev/null \
+    wget "$directory" -O - 2>/dev/null \
       | grep -oh '[^"]*'"$pkgname"'[^"]*\.pkg[^"]*' \
       | grep -v '.sig' \
-      | grep -v '>')
-    [[ -z "$urls" ]] || break
+      | grep -v '>' \
+      | parallel -j 20 bash -c \"source common/libc.sh \&\& get_pkg "$directory"/{} "$info" "$pkgname" "$static"\" \
+      && break
     echo "Retrying..."
     sleep 1
   done
-  [[ -n "$urls" ]] || die "Failed to get package version"
-
-  echo $urls | parallel -j 20 bash -c \"source common/libc.sh \&\& get_pkg "$directory"/{} "$info" "$pkgname" "$static"\"
 }
 
 requirements_pkg() {
@@ -409,17 +400,15 @@ get_all_apk() {
   echo "Getting package $info locations"
   local url=""
   for i in $(seq 1 3); do
-    urls=$(wget "$directory" -O - 2>/dev/null \
+    wget "$directory" -O - 2>/dev/null \
       | grep -oh '[^"]*'"$pkgname"'-[0-9][^"]*\.apk' \
       | grep -v '.sig' \
-      | grep -v '>')
-    [[ -z "$urls" ]] || break
+      | grep -v '>' \
+      | parallel -j 20 bash -c \"source common/libc.sh \&\& get_pkg "$directory"/{} "$info" "$pkgname" "$static"\" \
+      && break
     echo "Retrying..."
     sleep 1
   done
-  [[ -n "$urls" ]] || die "Failed to get package version"
-
-  echo $urls | parallel -j 20 bash -c \"source common/libc.sh \&\& get_pkg "$directory"/{} "$info" "$pkgname" "$static"\"
 }
 
 requirements_apk() {
