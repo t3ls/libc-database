@@ -6,17 +6,14 @@ die() {
   echo >&2 $1
   exit 1
 }
-export -f die
 
 dump_symbols() {
   readelf -Ws $1 | perl -n -e '/: (\w+)\s+\w+\s+(?:FUNC|OBJECT)\s+(?:\w+\s+){3}(\w+)\b(?:@@GLIBC)?/ && print "$2 $1\n"' | sort -u
 }
-export -f dump_symbols
 
 extract_label() {
   perl -n -e '/(\w+)/ && print $1'
 }
-export -f extract_label
 
 dump_libc_start_main_ret() {
   local call_main=`objdump -D $1 \
@@ -40,7 +37,6 @@ dump_libc_start_main_ret() {
     echo "__libc_start_main_ret $offset"
   fi
 }
-export -f dump_libc_start_main_ret
 
 dump_bin_sh() {
   local offset=`strings -a -t x $1 | grep '/bin/sh' | head -n1 | extract_label`
@@ -48,7 +44,6 @@ dump_bin_sh() {
     echo "str_bin_sh $offset"
   fi
 }
-export -f dump_bin_sh
 
 process_libc() {
   local libc=$1
@@ -64,7 +59,6 @@ process_libc() {
   echo "$info" > db/${id}.info
   echo "$url" > db/${id}.url
 }
-export -f process_libc
 
 process_libc_static() {
   local libc=$1
@@ -72,7 +66,6 @@ process_libc_static() {
   echo "  -> Writing libc ${libc} to db/${id}.a"
   cp $libc db/${id}.a
 }
-export -f process_libc_static
 
 index_libc() {
   local tmp="$1"
@@ -95,7 +88,6 @@ index_libc() {
     suffix=_$cnt
   done
 }
-export -f index_libc
 
 index_libc_static() {
   local tmp="$1"
@@ -116,7 +108,6 @@ index_libc_static() {
     suffix=_$cnt
   done
 }
-export -f index_libc_static
 
 check_id() {
   local id=$1
@@ -126,7 +117,6 @@ check_id() {
   fi
   return 0
 }
-export -f check_id
 
 requirements_general() {
   which readelf 1>/dev/null 2>&1 || return
@@ -137,7 +127,6 @@ requirements_general() {
   which grep    1>/dev/null 2>&1 || return
   return 0
 }
-export -f requirements_general
 
 # ===== Debian-like ===== #
 
@@ -173,7 +162,6 @@ get_debian() {
   fi
   rm -rf $tmp
 }
-export -f get_debian
 
 get_all_debian_amd64() {
   local info=$1
@@ -184,7 +172,6 @@ get_all_debian_amd64() {
     parallel -j 20 bash -c \"get_debian "$url"/{1} "$info" "$pkgname" "$static"\" :::: -
   return 0
 }
-# export -f get_all_debian_amd64
 
 
 get_all_debian_i386() {
@@ -196,7 +183,6 @@ get_all_debian_i386() {
     parallel -j 20 bash -c \"get_debian "$url"/{1} "$info" "$pkgname" "$static"\" :::: -
   return 0
 }
-export -f get_all_debian_i386
 
 requirements_debian() {
   which mktemp 1>/dev/null 2>&1 || return
@@ -208,7 +194,6 @@ requirements_debian() {
   which zstd   1>/dev/null 2>&1 || return
   return 0
 }
-export -f requirements_debian
 
 # ===== RPM ===== #
 
@@ -239,7 +224,6 @@ get_rpm() {
   fi
   rm -rf "$tmp"
 }
-export -f get_rpm
 
 get_all_rpm() {
   local info=$1
@@ -270,7 +254,6 @@ get_all_rpm() {
     sleep .1
   done
 }
-export -f get_all_rpm
 
 requirements_rpm() {
   which mktemp   1>/dev/null 2>&1 || return
@@ -281,7 +264,6 @@ requirements_rpm() {
   which grep     1>/dev/null 2>&1 || return
   return 0
 }
-export -f requirements_rpm
 
 # ===== CentOS ===== #
 
@@ -309,7 +291,6 @@ get_from_filelistgz() {
     sleep .1
   done
 }
-export -f get_from_filelistgz
 
 requirements_centos() {
   which wget       1>/dev/null 2>&1 || return
@@ -318,7 +299,6 @@ requirements_centos() {
   requirements_rpm || return
   return 0
 }
-export -f requirements_centos
 
 
 # ===== Arch ===== #
@@ -359,7 +339,6 @@ get_pkg() {
   fi
   rm -rf "$tmp"
 }
-export -f get_pkg
 
 get_all_pkg() {
   local info=$1
@@ -384,7 +363,6 @@ get_all_pkg() {
     sleep .1
   done
 }
-export -f get_all_pkg
 
 requirements_pkg() {
   which mktemp 1>/dev/null 2>&1 || return
@@ -398,7 +376,6 @@ requirements_pkg() {
   which xz     1>/dev/null 2>&1 || return
   return 0
 }
-export -f requirements_pkg
 
 
 # ===== Alpine ===== #
@@ -429,7 +406,6 @@ get_apk() {
   fi
   rm -rf $tmp
 }
-export -f get_apk
 
 get_all_apk() {
   local info=$1
@@ -458,7 +434,6 @@ get_all_apk() {
     sleep .1
   done
 }
-export -f get_all_apk
 
 requirements_apk() {
   which mktemp 1>/dev/null 2>&1 || return
@@ -469,7 +444,6 @@ requirements_apk() {
   which grep   1>/dev/null 2>&1 || return
   return 0
 }
-export -f requirements_apk
 
 # ===== Launchpad =====
 
@@ -497,7 +471,6 @@ get_all_launchpad_amd64() {
     done
   done
 }
-# export -f get_all_launchpad_amd64
 
 get_all_launchpad_i386() {
   local info="$1"
@@ -523,14 +496,12 @@ get_all_launchpad_i386() {
     done
   done
 }
-# export -f get_all_launchpad_i386
 
 requirements_launchpad() {
   which jq       1>/dev/null 2>&1 || return
   requirements_debian || return
   return 0
 }
-# export -f requirements_launchpad
 
 # ===== Local ===== #
 
@@ -543,12 +514,10 @@ add_local() {
   check_id $id || return
   process_libc $libc $id $info
 }
-# export -f add_local
 
 requirements_local() {
   which sha1sum 1>/dev/null 2>&1 || return
   return 0
 }
-# export -f requirements_local
 
 eval "$(declare -F | sed -e 's/-f /-fx /')"
