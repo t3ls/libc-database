@@ -550,3 +550,5 @@ requirements_local() {
   return 0
 }
 export -f requirements_local
+
+declare -pf
